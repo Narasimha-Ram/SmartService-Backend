@@ -19,7 +19,19 @@ public class JwtUtil {
     private long jwtExpirationMs;
 
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        byte[] keyBytes = (jwtSecret != null ? jwtSecret : "SmartServeJwtSecretKey2024XYZ!@#$%^&*()AbCdEfGhIjKlMnOpQrStUvWxYz0123456789")
+                .getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < 32) {
+            try {
+                java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+                keyBytes = md.digest(keyBytes);
+            } catch (java.security.NoSuchAlgorithmException ignored) {
+                byte[] padded = new byte[32];
+                System.arraycopy(keyBytes, 0, padded, 0, keyBytes.length);
+                keyBytes = padded;
+            }
+        }
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(String email, String role) {
