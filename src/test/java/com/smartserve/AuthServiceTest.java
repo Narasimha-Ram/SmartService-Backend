@@ -99,3 +99,4 @@ public class AuthServiceTest {
         assertEquals("mockJwtToken", resp.getToken());
     }
 }
+
